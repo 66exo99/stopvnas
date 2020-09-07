@@ -1,0 +1,88 @@
+(function ()
+{
+    if (!(window.TV && window.TV.Core))
+    {
+        if (!window.TVCoreLoad)
+        {
+            window.TVAssets = {
+                stours: 'stours.min.js',
+                slider: 'slider.min.js',
+                searchform: 'searchform.min.js',
+                minprice: 'minprice.min.js',
+                hot: 'hot.min.js',
+                geo: 'geo.min.js',
+                country: 'country.min.js',
+                core: 'core.min.js',
+                calendar: 'calendar.min.js'
+            };
+
+            var tourvisorfindGET = function (name, search)
+            {
+                var result = false,
+                    tmp = [];
+                search = search !== undefined ? search : location.search;
+
+                search
+                    .substr(1)
+                    .split('&')
+                    .forEach(function (item)
+                    {
+                        tmp = item.split('=');
+                        if (tmp[0] === name) result = decodeURIComponent(tmp[1]);
+                    });
+                return result;
+            };
+
+            window.TVCoreLoad = true;
+
+            var js = document.createElement('script'),
+                head = document.head || document.getElementsByTagName('head')[0],
+                root = '//tourvisor.ru/module/v3.7.19/';
+
+            if (tourvisorfindGET('tvtest') == 'ok') {
+                root = root.replace(/\/v.+\//, '/modules-test/');
+
+                for(var k in window.TVAssets) {
+                    window.TVAssets[k] = window.TVAssets[k].replace(/\.([\S]){20}/, '.min');
+                }
+            } else {
+                var srcFolder = tourvisorfindGET('tvfolder');
+
+                if (srcFolder !== false) {
+                    root = root.replace(/\/v.+\//, '/' + srcFolder + '/');
+
+                    for(var k in window.TVAssets) {
+                        window.TVAssets[k] = window.TVAssets[k].replace(/\.([\S]){20}/, '.min');
+                    }
+                }
+            }
+
+            js.setAttribute('type', 'text/javascript');
+            js.setAttribute('charset', 'utf-8');
+            js.setAttribute('src', root + window.TVAssets.core);
+            head.insertBefore(js, head.firstChild);
+
+            if (js.onload === null)
+            {
+                js.onload = function ()
+                {
+                    TV.loadModules();
+                };
+            }
+            else
+            {
+                js.onreadystatechange = function ()
+                {
+                    if (this.readyState == 'complete')
+                    {
+                        TV.loadModules();
+                    }
+                };
+            }
+        }
+    }
+    else
+    {
+        TV.loadModules();
+    }
+})();

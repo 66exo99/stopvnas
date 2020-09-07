@@ -1,0 +1,302 @@
+jQuery(document).ready(function ($) {
+    $('.tooltip').tooltipster({
+        animation: 'fade',
+        delay: 200,
+        theme: 'tooltipster-punk',
+        trigger: 'click'
+    });
+    $("#first_f").submit(function (event) {
+        event.preventDefault();
+//            alert('Форма в разработке');
+        ///*
+        $('[name="from"]', $('#form1_')).val($('#appform-from').val());
+        $('[name="country"]', $('#form1_')).val($('#appform-to').val());
+        $('[name="when"]', $('#form1_')).val($('#appform-date').val());
+        $('[name="night"]', $('#form1_')).val($('#appform-night').val());
+        $('[name="count"]', $('#form1_')).val($('#appform-adult').val());
+        $('[name="kids"]', $('#form1_')).val($('#appform-children').val());
+        $.magnificPopup.open({
+            items: {
+                src: $('#form1_popap'),
+                type: 'inline'
+            }
+        });
+        return false;
+        //*/
+    });
+    /* ajax Form */
+    $(document).on({
+        submit: function (e) {
+            e.preventDefault();
+            var $this = $(this),
+                $required = $this.find('input[required]'),
+                $minlen = $this.find('input[minlength]'),
+                $patterns = $this.find('input[pattern]'),
+                url = $this.prop('action'),
+                method = $this.prop('method'),
+                data = $this.serialize(),
+                goal = $this.attr('data-goal'),
+                validateStaus = true;
+            $required.each(function () {
+                var $this = $(this),
+                    $miw = $this.closest('.modal-input-wrap');
+                if (!$this.val().length && ($this.attr('name') != 'email' || !$this.closest('form').find('input[name="phone"]').val())) {
+                    validateStaus = false;
+                    $miw.addClass('error');
+                };
+            });
+            $minlen.each(function () {
+                var $this = $(this),
+                    minlen = (+($this.attr('minlength'))),
+                    $miw = $this.closest('.modal-input-wrap');
+                if ($this.val().length < minlen) {
+                    validateStaus = false;
+                    $miw.addClass('error');
+                };
+            });
+            $patterns.each(function () {
+                var $this = $(this),
+                    pattern = new RegExp($this.attr('pattern')),
+                    $miw = $this.closest('.modal-input-wrap');
+                if (!pattern.test($this.val()) && ($this.attr('name') != 'email' || $this.val() || !$this.closest('form').find('input[name="phone"]').val())) {
+                    validateStaus = false;
+                    $miw.addClass('error');
+                } ;
+            });
+            if (validateStaus) {
+                if ($this.find('.btn:last').hasClass('disabled')) return false;
+                $this.find('.btn:last').addClass('disabled');
+
+                if ($this.hasClass('comagic-form')) callphone($this.find('input[name="phone"]').val(), $this);
+                else {
+                    $.ajax({
+                        url: url,
+                        data: data,
+                        form: $this,
+                        method: method,
+                        dataType: 'json',
+                        error: function (xhr, status, err) {
+                            formSendError();
+                            this.form.find('.btn:last').removeClass('disabled');
+                        },
+                        success: function (data) {
+
+                            form_sent = true;
+                            if ($('.js-overlay').size()) $('.js-overlay:last').trigger('click');
+                            else this.form.trigger('reset');
+
+
+                            $.magnificPopup.open({
+                                items: {
+                                    src: $('#suc_'),
+                                    type: 'inline'
+                                }
+                            });
+                            this.form.find('.btn:last').removeClass('disabled');
+                        }
+                    });
+                }
+            }
+        },
+        change: function () {
+            var $this = $(this),
+                $miw = $this.find('.modal-input-wrap');
+            $miw.removeClass('error');
+        }
+    }, '.js-ajaxform');
+    /* Calendar */
+    var pmuLocale = {
+        days: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
+        daysShort: ['Вос', 'Пон', 'Вто', 'Сре', 'Чет', 'Пят', 'Суб', 'Вос'],
+        daysMin: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+        months: ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'],
+        monthsShort: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек']
+    }
+    $('.js-daterange').pickmeup({
+        mode: 'range',
+        position: 'bottom',
+        hide_on_select: true,
+        min: new Date,
+        calendars: 2,
+        locale: pmuLocale
+    });
+});
+
+jQuery(document).ready(function($) {
+    var sity_ar=[
+        "Архангельск",
+        "Астрахань",
+        "Барнаул",
+        "Белгород",
+        "Благовещенск",
+        "Владивосток",
+        "Волгоград",
+        "Воронеж",
+        "Екатеринбург",
+        "Ижевск",
+        "Иркутск",
+        "Казань",
+        "Калининград",
+        "Кемерово",
+        "Краснодар",
+        "Красноярск",
+        "Магнитогорск",
+        "Мин.Воды",
+        "Москва",
+        "Мурманск",
+        "Н.Новгород",
+        "Нижневартовск",
+        "Нижнекамск",
+        "Новокузнецк",
+        "Новосибирск",
+        "Новый Уренгой",
+        "Омск",
+        "Оренбург",
+        "Пенза",
+        "Пермь",
+        "Ростов-на-Дону",
+        "С.Петербург",
+        "Самара",
+        "Саратов",
+        "Симферополь",
+        "Сочи",
+        "Ставрополь",
+        "Сургут",
+        "Сыктывкар",
+        "Томск",
+        "Тюмень",
+        "Улан-Удэ",
+        "Ульяновск",
+        "Уфа",
+        "Хабаровск",
+        "Ханты-Мансийск",
+        "Челябинск",
+        "Чита",
+        "Ю.Сахалинск",
+        "Якутск"
+    ];
+    var cuntry_ar=[
+        "Абхазия",
+        "Австрия",
+        "Азербайджан",
+        "Андорра",
+        "Армения",
+        "Бахрейн",
+        "Беларусь",
+        "Болгария",
+        "Бразилия",
+        "Великобритания",
+        "Венгрия",
+        "Вьетнам",
+        "Германия",
+        "Греция",
+        "Грузия",
+        "Доминикана",
+        "Израиль",
+        "Индия",
+        "Индонезия",
+        "Иордания",
+        "Испания",
+        "Италия",
+        "Камбоджа",
+        "Кипр",
+        "Китай",
+        "Коста-Рика",
+        "Куба",
+        "Латвия",
+        "Литва",
+        "Маврикий",
+        "Малайзия",
+        "Мальдивы",
+        "Мальта",
+        "Марокко",
+        "Мексика",
+        "Нидерланды",
+        "ОАЭ",
+        "Польша",
+        "Португалия",
+        "Россия",
+        "Румыния",
+        "Сейшелы",
+        "Сербия",
+        "Сингапур",
+        "Словакия",
+        "Словения",
+        "США",
+        "Таиланд",
+        "Тунис",
+        "Турция",
+        "Узбекистан",
+        "Филиппины",
+        "Финляндия",
+        "Франция",
+        "Хорватия",
+        "Черногория",
+        "Чехия",
+        "Швейцария",
+        "Шри Ланка",
+        "Эстония",
+        "Ю.Корея",
+        "Ямайка",
+        "Япония",
+    ];
+    $('#appform-from').autoComplete({
+        minChars: 1,
+        source: function(term, suggest){
+            term = term.toLowerCase();
+            var choices = sity_ar;
+            var suggestions = [];
+            for (i=0;i<choices.length;i++)
+                if (~choices[i].toLowerCase().indexOf(term)) suggestions.push(choices[i]);
+            suggest(suggestions);
+        }
+    });
+    $('#appform-to').autoComplete({
+        minChars: 1,
+        source: function(term, suggest){
+            term = term.toLowerCase();
+            var choices = cuntry_ar;
+            var suggestions = [];
+            for (i=0;i<choices.length;i++)
+                if (~choices[i].toLowerCase().indexOf(term)) suggestions.push(choices[i]);
+            suggest(suggestions);
+        }
+    });
+});
+
+//форма ниже
+jQuery(document).ready(function($) {
+    $('#form_index').submit(function(event) {
+        event.preventDefault()
+        var $form=$('#form_index');
+        var b=true;
+        $('.req',$form).parent().removeClass('error');
+        $('.req',$form).each(function(index, el) {
+            if ($(this).val()=="") {
+                $(this).parent().addClass('error');
+                b=false;
+            }
+        });
+        if (b) {
+            $.ajax({
+                url: 'mailo//mail1.php',
+                type: 'POST',
+                data:$form.serialize() ,
+            })
+                .done(function() {
+                    $form[0].reset();
+                    $.magnificPopup.open({
+                        items: {
+                            src: $('#suc_'),
+                            type: 'inline'
+                        }
+                    });
+                })
+                .fail(function() {
+
+                })
+
+
+        }
+    });
+});
